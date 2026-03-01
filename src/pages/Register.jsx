@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api from '../api/axios';
 import { useNavigate, Link } from 'react-router-dom';
-import './Auth.css';
+
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -36,66 +36,102 @@ const Register = () => {
     };
 
     return (
-        <div className="auth-container">
-            <div className="auth-card glass-panel">
-                <h2 className="auth-title">Create Account</h2>
-                {error && <div className="auth-error animate-shake">{error}</div>}
-                <form onSubmit={handleRegister} className="auth-form">
-                    <div className="input-group">
-                        <label>Full Name</label>
-                        <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            required
-                            className="premium-input"
-                        />
+        <div className="container-fluid py-5">
+            <div className="row justify-content-center">
+                <div className="col-lg-6 col-md-8">
+                    <div className="card shadow-sm border-0">
+                        <div className="card-body p-4 p-lg-5">
+                            <h2 className="text-center mb-4">Đăng ký tài khoản</h2>
+
+                            {error && (
+                                <div className="alert alert-danger">
+                                    <ul className="mb-0 pl-3">
+                                        <li>{error}</li>
+                                    </ul>
+                                </div>
+                            )}
+
+                            <form onSubmit={handleRegister}>
+                                <div className="form-row">
+                                    <div className="form-group col-12">
+                                        <label htmlFor="fullname">Họ và tên</label>
+                                        <input
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            type="text"
+                                            name="name"
+                                            id="fullname"
+                                            className="form-control"
+                                            placeholder="Nguyễn Văn A"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="email">Email</label>
+                                    <input
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        type="email"
+                                        name="email"
+                                        id="email"
+                                        className="form-control"
+                                        placeholder="example@email.com"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="phone">Điện thoại (Không bắt buộc)</label>
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        onChange={handleChange}
+                                        id="phone"
+                                        className="form-control"
+                                        placeholder="09xxxxxxxx"
+                                    />
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-group col-md-6">
+                                        <label htmlFor="inputPassword">Mật khẩu</label>
+                                        <input
+                                            type="password"
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            name="password"
+                                            id="inputPassword"
+                                            className="form-control"
+                                            placeholder="Tối thiểu 6 ký tự"
+                                            required
+                                            minLength="6"
+                                        />
+                                    </div>
+                                    <div className="form-group col-md-6">
+                                        <label htmlFor="inputConfirmPassword">Nhập lại mật khẩu</label>
+                                        <input
+                                            type="password"
+                                            value={formData.confirmPassword}
+                                            onChange={handleChange}
+                                            name="confirmPassword"
+                                            id="inputConfirmPassword"
+                                            className="form-control"
+                                            placeholder="Nhập lại mật khẩu"
+                                            required
+                                            minLength="6"
+                                        />
+                                    </div>
+                                </div>
+                                <button type="submit" className="btn btn-primary btn-block py-2" disabled={loading}>
+                                    {loading ? 'Đang xử lý...' : 'Tạo tài khoản'}
+                                </button>
+                            </form>
+
+                            <p className="text-center mt-3 mb-0">
+                                Đã có tài khoản?{' '}
+                                <Link to="/login" className="font-weight-bold">Đăng nhập</Link>
+                            </p>
+                        </div>
                     </div>
-                    <div className="input-group">
-                        <label>Email Address</label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            className="premium-input"
-                        />
-                    </div>
-                    <div className="input-group">
-                        <label>Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            minLength={6}
-                            className="premium-input"
-                        />
-                    </div>
-                    <div className="input-group">
-                        <label>Confirm Password</label>
-                        <input
-                            type="password"
-                            name="confirmPassword"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            required
-                            className="premium-input"
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        className="btn btn-primary auth-btn"
-                        disabled={loading}
-                    >
-                        {loading ? <span className="spinner"></span> : 'Sign Up'}
-                    </button>
-                </form>
-                <div className="auth-footer">
-                    Already have an account? <Link to="/login" className="auth-link">Sign in</Link>
                 </div>
             </div>
         </div>

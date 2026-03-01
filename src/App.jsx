@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import UserLayout from './components/UserLayout';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -8,11 +9,14 @@ import AdminProducts from './pages/admin/AdminProducts';
 
 function App() {
   return (
-    <div className="app-main">
+    <>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        {/* Public Routes with Original Header/Footer */}
+        <Route path="/" element={<UserLayout />}>
+          <Route index element={<Home />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+        </Route>
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -21,7 +25,7 @@ function App() {
           <Route path="*" element={<div style={{ padding: '2rem' }}>Page under construction</div>} />
         </Route>
       </Routes>
-    </div>
+    </>
   );
 }
 
