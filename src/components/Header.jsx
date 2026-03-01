@@ -65,9 +65,9 @@ const Header = () => {
                                     {user ? (
                                         <>
                                             <span className="dropdown-item-text text-muted small">{user.email}</span>
-                                            {user.role === 'admin' && (
-                                                <Link className="dropdown-item text-primary" to="/admin">Quản trị Admin</Link>
-                                            )}
+                                            <a className="dropdown-item text-primary font-weight-bold" href="https://sport-shop-backend.onrender.com/admin">
+                                                <i className="fas fa-user-shield mr-2"></i>Quản trị Admin
+                                            </a>
                                             <div className="dropdown-divider"></div>
                                             <button className="dropdown-item text-danger" onClick={handleLogout}>Đăng xuất</button>
                                         </>
@@ -75,6 +75,10 @@ const Header = () => {
                                         <>
                                             <Link className="dropdown-item" to="/login">Đăng nhập</Link>
                                             <Link className="dropdown-item" to="/register">Đăng ký</Link>
+                                            <div className="dropdown-divider"></div>
+                                            <a className="dropdown-item text-primary" href="https://sport-shop-backend.onrender.com/admin">
+                                                <i class="fas fa-lock-open mr-2"></i>Vào Admin
+                                            </a>
                                         </>
                                     )}
                                 </div>
