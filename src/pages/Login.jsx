@@ -19,7 +19,11 @@ const Login = () => {
             const res = await api.post('/login', { email, password });
             if (res.data.success) {
                 localStorage.setItem('user', JSON.stringify(res.data.user));
-                navigate(res.data.redirect === '/admin' ? '/admin' : '/');
+                if (res.data.user.role === 'admin') {
+                    window.location.href = 'https://sport-shop-backend.onrender.com/admin';
+                } else {
+                    navigate('/');
+                }
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Lỗi đăng nhập');
