@@ -95,7 +95,7 @@ const AdminProducts = () => {
                             <tr key={product._id} style={{ borderBottom: '1px solid var(--border)' }}>
                                 <td style={{ padding: '1rem' }}>
                                     <div style={{ width: '50px', height: '50px', backgroundColor: '#eee', borderRadius: '8px', overflow: 'hideen' }}>
-                                        {product.image && <img src={`http://localhost:3000${product.image}`} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                                        {product.image && <img src={product.image.startsWith('http') ? product.image : `https://sport-shop-backend.onrender.com${product.image}`} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                                     </div>
                                 </td>
                                 <td style={{ padding: '1rem', fontWeight: 500 }}>{product.name}</td>

@@ -169,7 +169,7 @@ const Home = () => {
                             <div key={product.id || product._id} className="col-lg-3 col-md-4 col-sm-6 pb-1">
                                 <div className="product-item bg-light mb-4">
                                     <div className="product-img position-relative overflow-hidden">
-                                        <img className="img-fluid w-100" src={product.image ? `https://sport-shop-backend.onrender.com${product.image}` : `img/product-1.jpg`} alt={product.name} />
+                                        <img className="img-fluid w-100" src={product.image ? (product.image.startsWith('http') ? product.image : `https://sport-shop-backend.onrender.com${product.image}`) : `img/product-1.jpg`} alt={product.name} />
                                         <div className="product-action">
                                             <Link className="btn btn-outline-dark btn-square" to="#"><i className="fa fa-shopping-cart"></i></Link>
                                             <Link className="btn btn-outline-dark btn-square" to="#"><i className="far fa-heart"></i></Link>
@@ -233,7 +233,7 @@ const Home = () => {
                             <div key={product.id || product._id} className="col-lg-3 col-md-4 col-sm-6 pb-1">
                                 <div className="product-item bg-light mb-4">
                                     <div className="product-img position-relative overflow-hidden">
-                                        <img className="img-fluid w-100" src={product.image ? `https://sport-shop-backend.onrender.com${product.image}` : `img/product-1.jpg`} alt={product.name} />
+                                        <img className="img-fluid w-100" src={product.image ? (product.image.startsWith('http') ? product.image : `https://sport-shop-backend.onrender.com${product.image}`) : `img/product-1.jpg`} alt={product.name} />
                                         <div className="product-action">
                                             <Link className="btn btn-outline-dark btn-square" to="#"><i className="fa fa-shopping-cart"></i></Link>
                                             <Link className="btn btn-outline-dark btn-square" to="#"><i className="far fa-heart"></i></Link>
