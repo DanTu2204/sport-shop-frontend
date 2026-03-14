@@ -25,7 +25,7 @@ const UsersList = () => {
 
     return (
         <div className="container py-5">
-            <h2 className="text-center mb-4">Danh sách Users (Kỳ thi)</h2>
+            <h2 className="text-center mb-4">Danh sách Users</h2>
             {error && <div className="alert alert-danger">{error}</div>}
 
             {loading ? (
