@@ -10,6 +10,8 @@ function Profile() {
   const [activeTab, setActiveTab] = useState('profile');
   const [passForm, setPassForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [profileForm, setProfileForm] = useState({ name: '', phone: '', address: '', birthday: '' });
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
 
   const fetchProfile = async () => {
     try {
@@ -54,14 +56,13 @@ function Profile() {
   }, [navigate]);
 
   const handleProfileUpdate = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     try {
       const formData = new FormData();
       Object.keys(profileForm).forEach(k => formData.append(k, profileForm[k]));
       
-      const fileInput = document.getElementById('avatar-upload');
-      if (fileInput && fileInput.files[0]) {
-        formData.append('image', fileInput.files[0]);
+      if (avatarFile) {
+        formData.append('image', avatarFile);
       }
       
       const res = await axiosClient.post('/api/profile/update', formData, { 
@@ -69,6 +70,10 @@ function Profile() {
       });
       
       alert('Cập nhật thành công!');
+      
+      // Clear avatar state after success
+      setAvatarFile(null);
+      setAvatarPreview(null);
       
       // Update local storage if backend returns new user data
       if (res.data && res.data.user) {
@@ -121,7 +126,7 @@ function Profile() {
           <div className="bg-light p-4 text-center rounded shadow-sm">
             <div className="position-relative d-inline-block mb-3">
                <img 
-                 src={user.image ? getImageUrl(user.image) : 'https://www.w3schools.com/howto/img_avatar.png'} 
+                 src={avatarPreview || (user.image ? getImageUrl(user.image) : 'https://www.w3schools.com/howto/img_avatar.png')} 
                  className="rounded-circle border shadow-sm" 
                  style={{width: '150px', height: '150px', objectFit: 'cover'}} 
                  alt="User Avatar" 
@@ -143,12 +148,32 @@ function Profile() {
                  accept="image/*"
                  onChange={(e) => {
                    if (e.target.files[0]) {
-                     document.getElementById('sidebar-avatar-preview').src = URL.createObjectURL(e.target.files[0]);
+                     const file = e.target.files[0];
+                     setAvatarFile(file);
+                     setAvatarPreview(URL.createObjectURL(file));
                    }
                  }}
                />
             </div>
-            <h5 className="font-weight-semi-bold">{user.name}</h5>
+            {avatarFile && (
+              <div className="mt-3 d-flex justify-content-center">
+                <button 
+                  className="btn btn-sm btn-success mr-2 px-3 shadow-sm" 
+                  onClick={() => handleProfileUpdate()}
+                  title="Lưu ảnh đại diện mới"
+                >
+                  <i className="fas fa-check mr-1"></i> Lưu ảnh
+                </button>
+                <button 
+                  className="btn btn-sm btn-outline-secondary px-3 shadow-sm" 
+                  onClick={() => { setAvatarFile(null); setAvatarPreview(null); }}
+                  title="Hủy bỏ thay đổi"
+                >
+                  <i className="fas fa-times mr-1"></i> Hủy
+                </button>
+              </div>
+            )}
+            <h5 className="font-weight-semi-bold mt-3">{user.name}</h5>
             <p className="text-muted">{user.email}</p>
 
             <div className="nav flex-column nav-pills text-left mt-4" style={{cursor: 'pointer'}}>
