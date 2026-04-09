@@ -63,15 +63,17 @@ function Cart() {
 
     const updatedCart = data.cart.filter(item => item.id !== id);
     
-    // Tính toán lại các con số tổng tiền ngay tại local
+    // Tính toán lại các con số tổng tiền ngay tại local với giới hạn không âm
     const newSubtotal = updatedCart.reduce((total, item) => total + (item.price * item.qty), 0);
-    const newGrandTotal = newSubtotal + data.shipping - (data.discountAmount || 0);
+    const effectiveDiscount = Math.min(newSubtotal, data.discountAmount || 0);
+    const newGrandTotal = newSubtotal + data.shipping - effectiveDiscount;
 
     setData(prev => ({
       ...prev,
       cart: updatedCart,
       subtotal: newSubtotal,
-      grandTotal: newGrandTotal
+      discountAmount: effectiveDiscount, // Cập nhật lại số tiền giảm thực tế
+      grandTotal: Math.max(0, newGrandTotal)
     }));
 
     try {
@@ -100,13 +102,15 @@ function Cart() {
 
     // Tính toán lại tổng tiền tạm thời trong React để UI phản hồi nhanh
     const newSubtotal = updatedCart.reduce((total, item) => total + (item.price * item.qty), 0);
-    const newGrandTotal = newSubtotal + data.shipping - (data.discountAmount || 0);
+    const effectiveDiscount = Math.min(newSubtotal, data.discountAmount || 0);
+    const newGrandTotal = newSubtotal + data.shipping - effectiveDiscount;
 
     setData(prev => ({
       ...prev,
       cart: updatedCart,
       subtotal: newSubtotal,
-      grandTotal: newGrandTotal
+      discountAmount: effectiveDiscount,
+      grandTotal: Math.max(0, newGrandTotal)
     }));
   };
 
