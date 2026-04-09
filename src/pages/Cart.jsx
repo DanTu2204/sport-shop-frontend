@@ -64,33 +64,54 @@ function Cart() {
     }
   };
 
-  const updateQuantity = async (id, newQty) => {
+  const updateQuantity = (id, newQty) => {
     if (newQty < 1) return;
     
-    // Tìm sản phẩm và kiểm tra kho trước khi gửi request
+    // Tìm sản phẩm và kiểm tra kho
     const currentItem = data.cart.find(item => item.id === id);
     if (currentItem && newQty > currentItem.stock) return;
 
-    // Tạo bản sao giỏ hàng đã cập nhật số lượng
+    // CẬP NHẬT LẠC QUAN (Optimistic Update): Thay đổi UI ngay lập tức
     const updatedCart = data.cart.map(item => {
-      if (item.id === id) {
-        return { ...item, qty: newQty };
-      }
+      if (item.id === id) return { ...item, qty: newQty };
       return item;
     });
 
-    try {
-      // Gửi yêu cầu đồng bộ lên máy chủ
-      const response = await axiosClient.post('/api/cart/update', { cart: updatedCart });
-      if (response.data.success) {
-        // Cập nhật trạng thái với dữ liệu phản hồi từ server (đã tính lại tổng tiền)
-        setData({ ...response.data.data, loading: false });
-      }
-    } catch (error) {
-      console.error('Lỗi cập nhật giỏ hàng:', error);
-      alert('Không thể cập nhật số lượng. Vui lòng thử lại.');
-    }
+    // Tính toán lại tổng tiền tạm thời trong React để UI phản hồi nhanh
+    const newSubtotal = updatedCart.reduce((total, item) => total + (item.price * item.qty), 0);
+    const newGrandTotal = newSubtotal + data.shipping - (data.discountAmount || 0);
+
+    setData(prev => ({
+      ...prev,
+      cart: updatedCart,
+      subtotal: newSubtotal,
+      grandTotal: newGrandTotal
+    }));
   };
+
+  // ĐỒNG BỘ NGẦM (Debounced Sync): Gửi lên máy chủ sau khi người dùng ngừng nhấn nút
+  useEffect(() => {
+    // Không chạy khi giỏ hàng đang tải lần đầu hoặc trống
+    if (data.loading || data.cart.length === 0) return;
+
+    const syncTimer = setTimeout(async () => {
+      try {
+        const response = await axiosClient.post('/api/cart/update', { cart: data.cart });
+        if (response.data.success) {
+          // Cập nhật lại các con số chính xác từ server (phòng trường hợp server tính khác React)
+          // nhưng không đặt lại loading: true để tránh nháy màn hình
+          setData(prev => ({
+            ...prev,
+            ...response.data.data
+          }));
+        }
+      } catch (error) {
+        console.error('Lỗi đồng bộ giỏ hàng:', error);
+      }
+    }, 500); // Đợi 500ms sau thao tác cuối cùng
+
+    return () => clearTimeout(syncTimer);
+  }, [data.cart]);
 
 
   const formatCurrency = (value) => {
