@@ -58,11 +58,23 @@ function Profile() {
     try {
       const formData = new FormData();
       Object.keys(profileForm).forEach(k => formData.append(k, profileForm[k]));
-      // Note: updating profile image in react needs actual file handling.
-      // Skipping file for brevity or append document.getElementById('file').files[0] if it exists
       
-      await axiosClient.post('/api/profile/update', formData, { headers: { 'Content-Type': 'multipart/form-data' }});
+      const fileInput = document.getElementById('avatar-upload');
+      if (fileInput && fileInput.files[0]) {
+        formData.append('image', fileInput.files[0]);
+      }
+      
+      const res = await axiosClient.post('/api/profile/update', formData, { 
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
       alert('Cập nhật thành công!');
+      
+      // Update local storage if backend returns new user data
+      if (res.data && res.data.user) {
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+      }
+      
       fetchProfile();
     } catch (err) {
       alert('Lỗi cập nhật');
@@ -84,6 +96,17 @@ function Profile() {
     }
   };
 
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này không?")) return;
+    try {
+      await axiosClient.post(`/api/orders/${orderId}/cancel`);
+      alert('Hủy đơn hàng thành công! Số lượng sản phẩm đã được hoàn trả vào kho.');
+      fetchProfile();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Lỗi khi hủy đơn hàng');
+    }
+  };
+
   const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val || 0);
 
   if (data.loading) return <div className="container py-5 text-center">Đang tải biểu mẫu...</div>;
@@ -97,7 +120,33 @@ function Profile() {
         <div className="col-lg-3 col-md-4 mb-4">
           <div className="bg-light p-4 text-center rounded shadow-sm">
             <div className="position-relative d-inline-block mb-3">
-               <img src={user.image || '/img/user.jpg'} className="rounded-circle border" style={{width: '150px', height: '150px', objectFit: 'cover'}} alt="User Avatar" />
+               <img 
+                 src={user.image ? getImageUrl(user.image) : 'https://www.w3schools.com/howto/img_avatar.png'} 
+                 className="rounded-circle border shadow-sm" 
+                 style={{width: '150px', height: '150px', objectFit: 'cover'}} 
+                 alt="User Avatar" 
+                 id="sidebar-avatar-preview"
+               />
+               <label 
+                 htmlFor="avatar-upload" 
+                 className="position-absolute border-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                 style={{ bottom: '5px', right: '5px', width: '35px', height: '35px', cursor: 'pointer' }}
+                 title="Thay đổi ảnh đại diện"
+               >
+                 <i className="fas fa-camera"></i>
+               </label>
+               <input 
+                 type="file" 
+                 id="avatar-upload" 
+                 name="image" 
+                 hidden 
+                 accept="image/*"
+                 onChange={(e) => {
+                   if (e.target.files[0]) {
+                     document.getElementById('sidebar-avatar-preview').src = URL.createObjectURL(e.target.files[0]);
+                   }
+                 }}
+               />
             </div>
             <h5 className="font-weight-semi-bold">{user.name}</h5>
             <p className="text-muted">{user.email}</p>
@@ -202,7 +251,15 @@ function Profile() {
                                       {o.status === 'cancelled' && <span className="badge badge-danger p-2">Đã hủy</span>}
                                    </td>
                                    <td className="align-middle">
-                                      <Link to={`/orders/${o._id}`} className="btn btn-sm btn-outline-dark">Chi tiết</Link>
+                                      <Link to={`/orders/${o._id}`} className="btn btn-sm btn-outline-dark mr-1">Chi tiết</Link>
+                                      {(o.status === 'pending' || o.status === 'confirmed') && (
+                                        <button 
+                                          onClick={() => handleCancelOrder(o._id)} 
+                                          className="btn btn-sm btn-outline-danger"
+                                        >
+                                          Hủy đơn
+                                        </button>
+                                      )}
                                    </td>
                                 </tr>
                              ))}
