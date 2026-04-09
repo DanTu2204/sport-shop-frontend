@@ -97,13 +97,22 @@ function Detail() {
             </div>
 
             <form className="d-flex align-items-center mb-4 pt-2" onSubmit={handleAddToCart}>
-              <div className="input-group quantity mr-3" style={{ width: '130px' }}>
+              <div className="input-group quantity mr-3" style={{ width: '160px' }}>
                 <div className="input-group-btn">
                   <button type="button" className="btn btn-primary btn-minus" onClick={() => setQty(Math.max(1, qty - 1))}>
                     <i className="fa fa-minus"></i>
                   </button>
                 </div>
-                <input type="text" className="form-control bg-secondary border-0 text-center" value={qty} readOnly />
+                <input type="number" className="form-control bg-secondary border-0 text-center" 
+                       value={qty} 
+                       min="1"
+                       max={currentStock}
+                       onChange={(e) => {
+                         const val = parseInt(e.target.value);
+                         if (isNaN(val) || val < 1) setQty(1);
+                         else if (val > currentStock) setQty(currentStock);
+                         else setQty(val);
+                       }} />
                 <div className="input-group-btn">
                   <button type="button" className="btn btn-primary btn-plus" 
                           onClick={() => setQty(prev => (prev < currentStock) ? prev + 1 : prev)}
@@ -112,7 +121,7 @@ function Detail() {
                   </button>
                 </div>
               </div>
-              <button type="submit" className={`btn px-3 ${currentStock > 0 ? 'btn-primary' : 'btn-secondary'}`} disabled={currentStock <= 0}>
+              <button type="submit" className="btn btn-primary px-3" disabled={currentStock <= 0}>
                 <i className={`fa ${currentStock > 0 ? 'fa-shopping-cart' : 'fa-hourglass-half'} mr-1`}></i> 
                 {currentStock > 0 ? 'Thêm vào giỏ hàng' : 'Đã hết hàng, đợi nhập hàng'}
               </button>

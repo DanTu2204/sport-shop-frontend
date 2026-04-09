@@ -90,13 +90,22 @@ function Cart() {
                   </td>
                   <td className="align-middle">{formatCurrency(item.price)}</td>
                   <td className="align-middle">
-                    <div className="input-group quantity mx-auto" style={{ width: '100px' }}>
+                    <div className="input-group quantity mx-auto" style={{ width: '140px' }}>
                       <div className="input-group-btn">
                         <button className="btn btn-sm btn-primary btn-minus" onClick={() => updateQuantity(item.id, item.qty - 1)}>
                           <i className="fa fa-minus"></i>
                         </button>
                       </div>
-                      <input type="text" className="form-control form-control-sm bg-secondary border-0 text-center" value={item.qty} readOnly />
+                      <input type="number" className="form-control form-control-sm bg-secondary border-0 text-center" 
+                             value={item.qty}
+                             min="1"
+                             max={item.stock}
+                             onChange={(e) => {
+                               const val = parseInt(e.target.value);
+                               if (isNaN(val) || val < 1) updateQuantity(item.id, 1);
+                               else if (val > item.stock) updateQuantity(item.id, item.stock);
+                               else updateQuantity(item.id, val);
+                             }} />
                       <div className="input-group-btn">
                          <button className="btn btn-sm btn-primary btn-plus" 
                                  onClick={() => updateQuantity(item.id, item.qty + 1)}
