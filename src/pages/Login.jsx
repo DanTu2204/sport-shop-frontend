@@ -17,8 +17,7 @@ function Login() {
     setLoading(true);
     setError(null);
     try {
-      // Assuming backend has /api/login endpoints
-      const response = await axiosClient.post('/api/auth/login', formData);
+      const response = await axiosClient.post('/api/users/login', formData);
       if (response.data.success || response.status === 200) {
         alert(response.data.message || 'Đăng nhập thành công');
         navigate('/');

@@ -21,7 +21,7 @@ function Register() {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosClient.post('/api/auth/register', formData);
+      const response = await axiosClient.post('/api/users/register', formData);
       if (response.data.success || response.status === 200) {
         alert(response.data.message || 'Đăng ký thành công! Hãy đăng nhập.');
         navigate('/login');
