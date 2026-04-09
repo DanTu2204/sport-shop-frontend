@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axiosClient, { getImageUrl } from '../api/axiosClient';
+import { useAppContext } from '../context/AppContext';
 
 function Wishlist() {
   const [data, setData] = useState({ wishlist: [], loading: true });
+  const { syncState, setWishlistCount, setCartCount } = useAppContext();
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -25,18 +27,28 @@ function Wishlist() {
   }, []);
 
   const handleRemove = async (id) => {
+    // OPTIMISTIC UI: Cập nhật giao diện ngay lập tức
+    setData(prev => ({
+      ...prev,
+      wishlist: prev.wishlist.filter(item => item.id !== id)
+    }));
+    setWishlistCount(prev => Math.max(0, prev - 1)); // Giảm số trên Header ngay
+
     try {
       await axiosClient.post('/api/wishlist/remove', { id });
-      setData(prev => ({
-        ...prev,
-        wishlist: prev.wishlist.filter(item => item.id !== id)
-      }));
+      // Không cần gọi syncState() nữa vì đã update optimistically, 
+      // trừ khi muốn đảm bảo chính xác tuyệt đối sau khi xong.
     } catch (error) {
+      // Nếu lỗi thì nên sync lại để lấy dữ liệu thực tế từ server
+      syncState(); 
       alert("Lỗi khi xóa khỏi danh sách yêu thích");
     }
   };
 
   const handleAddToCart = async (item) => {
+    // OPTIMISTIC UI: Tăng số giỏ hàng ngay
+    setCartCount(prev => prev + 1);
+
     try {
       await axiosClient.post('/api/cart/add', {
         id: item.id,
@@ -47,6 +59,7 @@ function Wishlist() {
       });
       alert('Đã thêm thành công vào giỏ hàng!');
     } catch (error) {
+      setCartCount(prev => Math.max(0, prev - 1)); // Rollback nếu lỗi
       alert('Lỗi khi thêm giỏ hàng');
     }
   };

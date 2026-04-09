@@ -88,7 +88,8 @@ export const AppProvider = ({ children }) => {
   return (
     <AppContext.Provider value={{ 
       user, setUser, 
-      cartCount, wishlistCount, 
+      cartCount, setCartCount,
+      wishlistCount, setWishlistCount, 
       loading, syncState, 
       login, logout, 
       addToCart, addToWishlist 
