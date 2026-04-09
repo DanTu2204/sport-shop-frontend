@@ -77,8 +77,7 @@ function Topbar() {
             <span className="h1 text-uppercase text-dark bg-primary px-2 ml-n1">Shop</span>
           </Link>
         </div>
-        <div className="col-lg-4 col-6 text-left">
-          {/* Form remains the same */}
+        <div className="col-lg-4 col-6 text-center">
           <form onSubmit={handleSearch}>
             <div className="input-group">
               <input 
@@ -97,21 +96,9 @@ function Topbar() {
           </form>
         </div>
         <div className="col-lg-4 col-6 text-right">
-          <p className="m-0">Hỗ trợ Khách hàng</p>
-          <h5 className="m-0">0909 123 456</h5>
+          <p className="m-0 text-muted" style={{ fontSize: '14px' }}>Hỗ trợ Khách hàng</p>
+          <h5 className="m-0" style={{ fontWeight: '700' }}>0909 123 456</h5>
         </div>
-      </div>
-      <div className="row bg-dark d-none d-lg-flex px-xl-5" style={{ height: '50px' }}>
-          <div className="col-lg-12 text-right py-2">
-             <Link to="/wishlist" className="btn px-0">
-                <i className="fas fa-heart text-primary"></i>
-                <span className="badge text-secondary border border-secondary rounded-circle ml-1" style={{ paddingBottom: '2px' }}>{wishlistCount}</span>
-             </Link>
-             <Link to="/cart" className="btn px-0 ml-3">
-                <i className="fas fa-shopping-cart text-primary"></i>
-                <span className="badge text-secondary border border-secondary rounded-circle ml-1 cart-count" style={{ paddingBottom: '2px' }}>{cartCount}</span>
-             </Link>
-          </div>
       </div>
     </div>
   );
