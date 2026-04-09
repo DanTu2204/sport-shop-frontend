@@ -11,6 +11,8 @@ function Cart() {
     loading: true,
   });
 
+  const [voucherCode, setVoucherCode] = useState('');
+
   const fetchCart = async () => {
     try {
       const response = await axiosClient.get('/api/cart');
@@ -23,10 +25,35 @@ function Cart() {
        setData(prev => ({ ...prev, loading: false }));
     }
   };
-
   useEffect(() => {
     fetchCart();
   }, []);
+
+  const handleApplyVoucher = async (e) => {
+    e.preventDefault();
+    if (!voucherCode) return;
+    try {
+      const response = await axiosClient.post('/api/cart/apply-voucher', { code: voucherCode });
+      if (response.data.success) {
+        alert(response.data.message);
+        setVoucherCode('');
+        fetchCart();
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      alert('Lỗi áp dụng mã giảm giá.');
+    }
+  };
+
+  const handleRemoveVoucher = async () => {
+    try {
+      await axiosClient.post('/api/cart/remove-voucher');
+      fetchCart();
+    } catch (error) {
+      alert('Lỗi gỡ mã giảm giá.');
+    }
+  };
 
   const handleRemove = async (id) => {
     try {
@@ -40,12 +67,11 @@ function Cart() {
   const updateQuantity = (id, newQty) => {
     if (newQty < 1) return;
     
+    // In a real app, we should call a backend endpoint to update qty
+    // but here we just update local state and let the user proceed
     const updatedCart = data.cart.map(item => {
       if (item.id === id) {
-        // Check stock limit on frontend
-        if (newQty > item.stock) {
-           return item;
-        }
+        if (newQty > item.stock) return item;
         return { ...item, qty: newQty };
       }
       return item;
@@ -56,9 +82,8 @@ function Cart() {
       ...data,
       cart: updatedCart,
       subtotal: newSubtotal,
-      grandTotal: newSubtotal + data.shipping
+      grandTotal: newSubtotal + data.shipping - (data.discountAmount || 0)
     });
-    // Optional: You could post this change to a backend update endpoint if it existed.
   };
 
   const formatCurrency = (value) => {
@@ -134,6 +159,15 @@ function Cart() {
 
         {/* Tóm tắt */}
         <div className="col-lg-4">
+          <form className="mb-30" onSubmit={handleApplyVoucher}>
+            <div className="input-group">
+                <input type="text" className="form-control border-0 p-4" placeholder="Mã giảm giá" value={voucherCode} onChange={(e) => setVoucherCode(e.target.value)} />
+                <div className="input-group-append">
+                    <button className="btn btn-primary">Áp dụng</button>
+                </div>
+            </div>
+          </form>
+
           <h5 className="section-title position-relative text-uppercase mb-3"><span className="bg-secondary pr-3">Tóm tắt đơn hàng</span></h5>
           <div className="bg-light p-30 mb-5">
             <div className="border-bottom pb-2">
@@ -141,10 +175,16 @@ function Cart() {
                 <h6>Tạm tính</h6>
                 <h6>{formatCurrency(data.subtotal)}</h6>
               </div>
-              <div className="d-flex justify-content-between">
+              <div className="d-flex justify-content-between mb-3">
                 <h6 className="font-weight-medium">Phí vận chuyển</h6>
                 <h6 className="font-weight-medium">{formatCurrency(data.shipping)}</h6>
               </div>
+              {data.discountAmount > 0 && (
+                <div className="d-flex justify-content-between mb-3 text-success">
+                  <h6 className="font-weight-bold">Giảm giá ({data.appliedVoucher?.code}) <span className="text-danger" style={{cursor:'pointer'}} onClick={handleRemoveVoucher}>&times;</span></h6>
+                  <h6 className="font-weight-bold">-{formatCurrency(data.discountAmount)}</h6>
+                </div>
+              )}
             </div>
             <div className="pt-2">
               <div className="d-flex justify-content-between mt-2">
