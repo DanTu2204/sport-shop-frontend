@@ -234,15 +234,6 @@ function Cart() {
 
         {/* Tóm tắt */}
         <div className="col-lg-4">
-          <form className="mb-30" onSubmit={handleApplyVoucher}>
-            <div className="input-group">
-                <input type="text" className="form-control border-0 p-4" placeholder="Mã giảm giá" value={voucherCode} onChange={(e) => setVoucherCode(e.target.value)} />
-                <div className="input-group-append">
-                    <button className="btn btn-primary">Áp dụng</button>
-                </div>
-            </div>
-          </form>
-
           <h5 className="section-title position-relative text-uppercase mb-3"><span className="bg-secondary pr-3">Tóm tắt đơn hàng</span></h5>
           <div className="bg-light p-30 mb-5">
             <div className="border-bottom pb-2">
