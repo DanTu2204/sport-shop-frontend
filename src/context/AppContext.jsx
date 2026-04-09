@@ -74,9 +74,11 @@ export const AppProvider = ({ children }) => {
 
   const addToWishlist = async (productId) => {
     try {
-      await axiosClient.get(`/api/wishlist?add=${productId}`);
-      syncState();
-      alert('Đã thêm vào danh sách yêu thích!');
+      const response = await axiosClient.post('/api/wishlist/add', { productId });
+      if (response.data.success) {
+        setWishlistCount(response.data.wishlistCount || (wishlistCount + 1));
+        alert('Đã thêm vào danh sách yêu thích!');
+      }
     } catch (error) {
       console.error("Add to wishlist error", error);
       alert('Vui lòng đăng nhập để sử dụng tính năng này.');
