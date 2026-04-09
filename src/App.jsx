@@ -19,6 +19,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import Help from './pages/Help';
+import UserList from './pages/UserList'; 
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/help" element={<Help />} />
+          <Route path="/users" element={<UserList />} />
           <Route path="*" element={<div className="container py-5 text-center"><h2>Khong tim thay trang / Not Found</h2></div>} />
         </Routes>
       </div>
