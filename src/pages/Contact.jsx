@@ -12,6 +12,7 @@ function Contact() {
     try {
       await axiosClient.post('/api/contact', formData);
       setSuccessMsg('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.');
+      window.alert('Gửi thông báo liên hệ thành công!');
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (err) {
       alert('Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại sau.');
