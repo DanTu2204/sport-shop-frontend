@@ -6,7 +6,7 @@ import { useAppContext } from '../context/AppContext';
 function Profile() {
   const { logout: contextLogout } = useAppContext();
   const navigate = useNavigate();
-  const [data, setData] = useState({ user: null, orders: [], loading: true });
+  const [data, setData] = useState({ user: null, orders: [], contacts: [], loading: true });
   const [activeTab, setActiveTab] = useState('profile');
   const [passForm, setPassForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [profileForm, setProfileForm] = useState({ name: '', phone: '', address: '', birthday: '' });
@@ -16,7 +16,12 @@ function Profile() {
       const response = await axiosClient.get('/api/profile');
       if (response.data && response.data.data) {
         const u = response.data.data.user;
-        setData({ user: u, orders: response.data.data.orders || [], loading: false });
+        setData({ 
+          user: u, 
+          orders: response.data.data.orders || [], 
+          contacts: response.data.data.contacts || [],
+          loading: false 
+        });
         if(u) {
            setProfileForm({
              name: u.name || '',
@@ -27,7 +32,12 @@ function Profile() {
         }
       } else if (response.data && response.data.user) {
         const u = response.data.user;
-        setData({ user: u, orders: response.data.orders || [], loading: false });
+        setData({ 
+          user: u, 
+          orders: response.data.orders || [], 
+          contacts: response.data.contacts || [],
+          loading: false 
+        });
         // Handle direct json
         setProfileForm({
              name: u.name || '', phone: u.phone || '', address: u.address || '',
@@ -96,6 +106,7 @@ function Profile() {
                <div className={`nav-link ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}><i className="fas fa-user mr-2"></i> Hồ sơ của tôi</div>
                <div className={`nav-link ${activeTab === 'password' ? 'active' : ''}`} onClick={() => setActiveTab('password')}><i className="fas fa-key mr-2"></i> Đổi mật khẩu</div>
                <div className={`nav-link ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}><i className="fas fa-shopping-bag mr-2"></i> Đơn hàng của tôi</div>
+               <div className={`nav-link ${activeTab === 'contacts' ? 'active' : ''}`} onClick={() => setActiveTab('contacts')}><i className="fas fa-envelope mr-2"></i> Liên hệ của tôi</div>
                <button className="nav-link text-danger text-left border-0 bg-transparent mt-3" onClick={async () => { await contextLogout(); navigate('/login'); }}><i className="fas fa-sign-out-alt mr-2"></i> Đăng xuất</button>
             </div>
           </div>
@@ -204,6 +215,49 @@ function Profile() {
                        </div>
                     )}
                  </div>
+              </div>
+            )}
+
+            {activeTab === 'contacts' && (
+              <div>
+                <h4 className="mb-4">Liên hệ của tôi</h4>
+                {data.contacts.length > 0 ? (
+                  <div className="list-group">
+                    {data.contacts.map((c) => (
+                      <div key={c._id} className="list-group-item list-group-item-action flex-column align-items-start mb-3 border rounded shadow-sm p-4">
+                        <div className="d-flex w-100 justify-content-between mb-2">
+                          <h5 className="mb-1 text-primary">{c.subject}</h5>
+                          <small className="text-muted">{new Date(c.createdAt).toLocaleDateString()} {new Date(c.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                        </div>
+                        <p className="mb-3 text-dark bg-light p-3 rounded" style={{borderLeft: '4px solid #ced4da'}}>
+                          <i className="fas fa-comment-dots mr-2 text-muted"></i>
+                          {c.message}
+                        </p>
+                        
+                        {c.reply ? (
+                          <div className="mt-3 p-3 bg-white border-left border-primary rounded" style={{borderLeft: '4px solid #007bff'}}>
+                            <div className="font-weight-bold text-primary mb-2">
+                              <i className="fas fa-reply mr-2"></i>Admin phản hồi:
+                            </div>
+                            <div className="text-dark">
+                              {c.reply}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="mt-2 text-muted italic small">
+                            <i className="fas fa-hourglass-half mr-2"></i>Đang chờ cửa hàng phản hồi...
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-5 border bg-white rounded">
+                    <i className="fas fa-envelope-open-text fa-3x text-muted mb-3"></i>
+                    <h5 className="text-muted">Bạn chưa gửi tin nhắn liên hệ nào.</h5>
+                    <Link to="/contact" className="btn btn-primary mt-3">Gửi liên hệ ngay</Link>
+                  </div>
+                )}
               </div>
             )}
 
