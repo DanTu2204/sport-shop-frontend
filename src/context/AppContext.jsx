@@ -54,8 +54,12 @@ export const AppProvider = ({ children }) => {
   };
 
   const addToCart = async (product, qty = 1, size = null) => {
+    // OPTIMISTIC UI: Giả định là thêm món mới hoàn toàn và tăng số ngay
+    // (Nếu là món đã có, syncState() sau đó sẽ điều chỉnh lại cho đúng)
+    setCartCount(prev => prev + 1);
+
     try {
-      const response = await axiosClient.post('/api/cart/add', {
+      await axiosClient.post('/api/cart/add', {
         id: product.id || product._id,
         name: product.name,
         price: product.price,
@@ -63,9 +67,10 @@ export const AppProvider = ({ children }) => {
         qty: qty,
         size: size
       });
-      syncState(); // Update counts
+      syncState(); // Cập nhật lại con số chính xác tuyệt đối từ server
       alert('Đã thêm sản phẩm vào giỏ hàng!');
     } catch (error) {
+      setCartCount(prev => Math.max(0, prev - 1)); // Hoàn tác nếu lỗi
       console.error("Add to cart error", error);
       const msg = error.response?.data?.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng.';
       alert(msg);
@@ -73,13 +78,18 @@ export const AppProvider = ({ children }) => {
   };
 
   const addToWishlist = async (productId) => {
+    // OPTIMISTIC UI: Tăng ngay lập tức
+    setWishlistCount(prev => prev + 1);
+
     try {
       const response = await axiosClient.post('/api/wishlist/add', { productId });
       if (response.data.success) {
+        // Cập nhật lại số chuẩn từ server
         setWishlistCount(response.data.wishlistCount || (wishlistCount + 1));
         alert('Đã thêm vào danh sách yêu thích!');
       }
     } catch (error) {
+      setWishlistCount(prev => Math.max(0, prev - 1)); // Hoàn tác nếu lỗi
       console.error("Add to wishlist error", error);
       alert('Vui lòng đăng nhập để sử dụng tính năng này.');
     }

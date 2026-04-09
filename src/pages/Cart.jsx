@@ -4,7 +4,7 @@ import axiosClient, { getImageUrl } from '../api/axiosClient';
 import { useAppContext } from '../context/AppContext';
 
 function Cart() {
-  const { syncState } = useAppContext();
+  const { syncState, setCartCount } = useAppContext();
   const [data, setData] = useState({
     cart: [],
     subtotal: 0,
@@ -53,15 +53,17 @@ function Cart() {
       grandTotal: newGrandTotal
     }));
 
+    // CẬP NHẬT HEADER TỨC THÌ
+    setCartCount(prev => Math.max(0, prev - 1));
+
     try {
       // 2. Gửi lệnh xóa ngầm lên server
       await axiosClient.post('/api/cart/remove', { id });
       
-      // 3. ĐỒNG BỘ HEADER: Cập nhật lại cartCount trên thanh Header
-      syncState();
+      // Không cần gọi syncState() ở đây vì đã update lạc quan ở trên
     } catch (error) {
       console.error("Lỗi khi xóa sản phẩm:", error);
-      fetchCart();
+      syncState(); // Nếu lỗi thì mới đồng bộ lại từ server để đảm bảo chính xác
     }
   };
 
