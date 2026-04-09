@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import axiosClient, { getImageUrl } from '../api/axiosClient';
+import { useAppContext } from '../context/AppContext';
 
 function Detail() {
+  const { addToCart } = useAppContext();
   const [searchParams] = useSearchParams();
   const productId = searchParams.get('id');
   const [data, setData] = useState({
@@ -34,18 +36,7 @@ function Detail() {
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
-    try {
-      await axiosClient.post('/api/cart/add', {
-        id: data.product.id,
-        name: data.product.name,
-        price: data.product.price,
-        image: data.product.image,
-        qty: qty
-      });
-      alert('Đã thêm vào giỏ hàng!');
-    } catch (error) {
-      alert('Lỗi thêm giỏ hàng.');
-    }
+    addToCart(data.product, qty);
   };
 
   const submitReview = async (e) => {

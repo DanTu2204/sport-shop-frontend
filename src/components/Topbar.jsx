@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAppContext } from '../context/AppContext';
 
 function Topbar() {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const { user, cartCount, wishlistCount, logout } = useAppContext();
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -12,9 +14,13 @@ function Topbar() {
     }
   };
 
+  const handleLogout = async () => {
+     await logout();
+     navigate('/login');
+  }
+
   return (
     <div className="container-fluid">
-      {/* ... the rest stays the same until the search form ... */}
       <div className="row bg-secondary py-1 px-xl-5">
         <div className="col-lg-6 d-none d-lg-block">
           <div className="d-inline-flex align-items-center h-100">
@@ -28,11 +34,22 @@ function Topbar() {
           <div className="d-inline-flex align-items-center">
             <div className="btn-group">
               <button type="button" className="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">
-                Tài khoản
+                {user ? `Xin chào, ${user.name}` : 'Tài khoản'}
               </button>
               <div className="dropdown-menu dropdown-menu-right">
-                <Link className="dropdown-item" to="/login">Đăng nhập</Link>
-                <Link className="dropdown-item" to="/register">Đăng ký</Link>
+                {user ? (
+                  <>
+                    <Link className="dropdown-item" to="/profile">Hồ sơ cá nhân</Link>
+                    <Link className="dropdown-item" to="/orders">Đơn hàng của tôi</Link>
+                    <div className="dropdown-divider"></div>
+                    <button className="dropdown-item text-danger" onClick={handleLogout}>Đăng xuất</button>
+                  </>
+                ) : (
+                  <>
+                    <Link className="dropdown-item" to="/login">Đăng nhập</Link>
+                    <Link className="dropdown-item" to="/register">Đăng ký</Link>
+                  </>
+                )}
               </div>
             </div>
             <div className="btn-group mx-2">
@@ -45,11 +62,11 @@ function Topbar() {
           <div className="d-inline-flex align-items-center d-block d-lg-none">
             <Link to="/wishlist" className="btn px-0 ml-2">
               <i className="fas fa-heart text-dark"></i>
-              <span className="badge text-dark border border-dark rounded-circle" style={{ paddingBottom: '2px' }}>0</span>
+              <span className="badge text-dark border border-dark rounded-circle" style={{ paddingBottom: '2px' }}>{wishlistCount}</span>
             </Link>
             <Link to="/cart" className="btn px-0 ml-2">
               <i className="fas fa-shopping-cart text-dark"></i>
-              <span className="badge text-dark border border-dark rounded-circle cart-count" style={{ paddingBottom: '2px' }}>0</span>
+              <span className="badge text-dark border border-dark rounded-circle cart-count" style={{ paddingBottom: '2px' }}>{cartCount}</span>
             </Link>
           </div>
         </div>
@@ -62,6 +79,7 @@ function Topbar() {
           </Link>
         </div>
         <div className="col-lg-4 col-6 text-left">
+          {/* Form remains the same */}
           <form onSubmit={handleSearch}>
             <div className="input-group">
               <input 
@@ -83,6 +101,18 @@ function Topbar() {
           <p className="m-0">Hỗ trợ Khách hàng</p>
           <h5 className="m-0">0909 123 456</h5>
         </div>
+      </div>
+      <div className="row bg-dark d-none d-lg-flex px-xl-5" style={{ height: '50px' }}>
+          <div className="col-lg-12 text-right py-2">
+             <Link to="/wishlist" className="btn px-0">
+                <i className="fas fa-heart text-primary"></i>
+                <span className="badge text-secondary border border-secondary rounded-circle ml-1" style={{ paddingBottom: '2px' }}>{wishlistCount}</span>
+             </Link>
+             <Link to="/cart" className="btn px-0 ml-3">
+                <i className="fas fa-shopping-cart text-primary"></i>
+                <span className="badge text-secondary border border-secondary rounded-circle ml-1 cart-count" style={{ paddingBottom: '2px' }}>{cartCount}</span>
+             </Link>
+          </div>
       </div>
     </div>
   );

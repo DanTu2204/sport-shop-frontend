@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import axiosClient, { getImageUrl } from '../api/axiosClient';
+import { useAppContext } from '../context/AppContext';
 
 function Shop() {
+  const { addToCart, addToWishlist } = useAppContext();
   const [data, setData] = useState({
     products: [],
     categories: [],
@@ -80,8 +82,8 @@ function Shop() {
                     <div className="product-img position-relative overflow-hidden">
                         <img className="img-fluid w-100" src={getImageUrl(product.image)} alt={product.name} />
                         <div className="product-action">
-                            <button className="btn btn-outline-dark btn-square" title="Thêm vào giỏ"><i className="fa fa-shopping-cart"></i></button>
-                            <Link className="btn btn-outline-dark btn-square" to={`/wishlist?add=${product.id}`} title="Yêu thích"><i className="far fa-heart"></i></Link>
+                            <button className="btn btn-outline-dark btn-square" title="Thêm vào giỏ" onClick={() => addToCart(product)}><i className="fa fa-shopping-cart"></i></button>
+                            <button className="btn btn-outline-dark btn-square" title="Yêu thích" onClick={() => addToWishlist(product.id)}><i className="far fa-heart"></i></button>
                             <Link className="btn btn-outline-dark btn-square" to={`/detail?id=${product.id}`} title="Xem chi tiết" style={{ zIndex: 100, position: 'relative' }}><i className="fa fa-search"></i></Link>
                         </div>
                     </div>

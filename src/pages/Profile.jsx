@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axiosClient from '../api/axiosClient';
+import axiosClient, { getImageUrl } from '../api/axiosClient';
+import { useAppContext } from '../context/AppContext';
 
 function Profile() {
+  const { logout: contextLogout } = useAppContext();
   const navigate = useNavigate();
   const [data, setData] = useState({ user: null, orders: [], loading: true });
   const [activeTab, setActiveTab] = useState('profile');
@@ -94,7 +96,7 @@ function Profile() {
                <div className={`nav-link ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}><i className="fas fa-user mr-2"></i> Hồ sơ của tôi</div>
                <div className={`nav-link ${activeTab === 'password' ? 'active' : ''}`} onClick={() => setActiveTab('password')}><i className="fas fa-key mr-2"></i> Đổi mật khẩu</div>
                <div className={`nav-link ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}><i className="fas fa-shopping-bag mr-2"></i> Đơn hàng của tôi</div>
-               <button className="nav-link text-danger text-left border-0 bg-transparent mt-3" onClick={() => { /* Logout Logic */ axiosClient.get('/api/auth/logout').then(() => { window.dispatchEvent(new Event('auth-change')); navigate('/login'); })}}><i className="fas fa-sign-out-alt mr-2"></i> Đăng xuất</button>
+               <button className="nav-link text-danger text-left border-0 bg-transparent mt-3" onClick={async () => { await contextLogout(); navigate('/login'); }}><i className="fas fa-sign-out-alt mr-2"></i> Đăng xuất</button>
             </div>
           </div>
         </div>

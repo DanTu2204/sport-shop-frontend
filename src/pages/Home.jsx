@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axiosClient, { getImageUrl } from '../api/axiosClient';
+import { useAppContext } from '../context/AppContext';
 
 function Home() {
+  const { addToCart, addToWishlist } = useAppContext();
   const [data, setData] = useState({
     banners: [],
     categories: [],
@@ -151,8 +153,8 @@ function Home() {
                           <div className="product-img position-relative overflow-hidden">
                               <img className="img-fluid w-100" src={getImageUrl(product.image)} alt={product.name} />
                               <div className="product-action">
-                                  <button className="btn btn-outline-dark btn-square"><i className="fa fa-shopping-cart"></i></button>
-                                  <Link className="btn btn-outline-dark btn-square" to={`/wishlist?add=${product.id}`}><i className="far fa-heart"></i></Link>
+                                  <button className="btn btn-outline-dark btn-square" onClick={() => addToCart(product)}><i className="fa fa-shopping-cart"></i></button>
+                                  <button className="btn btn-outline-dark btn-square" onClick={() => addToWishlist(product.id)}><i className="far fa-heart"></i></button>
                                   <Link className="btn btn-outline-dark btn-square" to={`/detail?id=${product.id}`} style={{ zIndex: 100, position: 'relative' }}><i className="fa fa-search"></i></Link>
                               </div>
                           </div>

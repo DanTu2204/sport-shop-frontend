@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
+import { useAppContext } from '../context/AppContext';
 
 function Login() {
+  const { login } = useAppContext();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -19,10 +21,9 @@ function Login() {
     try {
       const response = await axiosClient.post('/api/users/login', formData);
       if (response.data.success || response.status === 200) {
+        login(response.data.user); // Update global state
         alert(response.data.message || 'Đăng nhập thành công');
         navigate('/');
-        // Trigger a custom event so Navbar updates immediately
-        window.dispatchEvent(new Event('auth-change'));
       } else {
         setError(response.data.message || 'Lỗi đăng nhập');
       }

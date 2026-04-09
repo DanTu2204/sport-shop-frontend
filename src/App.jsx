@@ -20,8 +20,15 @@ import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import Help from './pages/Help';
 import UserList from './pages/UserList'; 
+import { AppProvider, useAppContext } from './context/AppContext';
 
-function App() {
+function AppContent() {
+  const { loading } = useAppContext();
+
+  if (loading) {
+     return <div className="p-5 text-center">正在加载 / Loading...</div>;
+  }
+
   return (
     <Router>
       <Topbar />
@@ -51,6 +58,14 @@ function App() {
       </div>
       <Footer />
     </Router>
+  );
+}
+
+function App() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
   );
 }
 
