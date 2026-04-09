@@ -64,27 +64,34 @@ function Cart() {
     }
   };
 
-  const updateQuantity = (id, newQty) => {
+  const updateQuantity = async (id, newQty) => {
     if (newQty < 1) return;
     
-    // In a real app, we should call a backend endpoint to update qty
-    // but here we just update local state and let the user proceed
+    // Tìm sản phẩm và kiểm tra kho trước khi gửi request
+    const currentItem = data.cart.find(item => item.id === id);
+    if (currentItem && newQty > currentItem.stock) return;
+
+    // Tạo bản sao giỏ hàng đã cập nhật số lượng
     const updatedCart = data.cart.map(item => {
       if (item.id === id) {
-        if (newQty > item.stock) return item;
         return { ...item, qty: newQty };
       }
       return item;
     });
 
-    const newSubtotal = updatedCart.reduce((total, item) => total + (item.price * item.qty), 0);
-    setData({
-      ...data,
-      cart: updatedCart,
-      subtotal: newSubtotal,
-      grandTotal: newSubtotal + data.shipping - (data.discountAmount || 0)
-    });
+    try {
+      // Gửi yêu cầu đồng bộ lên máy chủ
+      const response = await axiosClient.post('/api/cart/update', { cart: updatedCart });
+      if (response.data.success) {
+        // Cập nhật trạng thái với dữ liệu phản hồi từ server (đã tính lại tổng tiền)
+        setData({ ...response.data.data, loading: false });
+      }
+    } catch (error) {
+      console.error('Lỗi cập nhật giỏ hàng:', error);
+      alert('Không thể cập nhật số lượng. Vui lòng thử lại.');
+    }
   };
+
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
