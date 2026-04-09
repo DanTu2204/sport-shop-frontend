@@ -1,9 +1,20 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Topbar() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/shop?q=${encodeURIComponent(searchTerm)}`);
+    }
+  };
+
   return (
     <div className="container-fluid">
+      {/* ... the rest stays the same until the search form ... */}
       <div className="row bg-secondary py-1 px-xl-5">
         <div className="col-lg-6 d-none d-lg-block">
           <div className="d-inline-flex align-items-center h-100">
@@ -51,9 +62,15 @@ function Topbar() {
           </Link>
         </div>
         <div className="col-lg-4 col-6 text-left">
-          <form method="get" action="/shop">
+          <form onSubmit={handleSearch}>
             <div className="input-group">
-              <input type="text" name="q" className="form-control" placeholder="Tìm kiếm sản phẩm" />
+              <input 
+                type="text" 
+                className="form-control" 
+                placeholder="Tìm kiếm sản phẩm" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
               <div className="input-group-append">
                 <button type="submit" className="input-group-text bg-transparent text-primary border-0">
                   <i className="fa fa-search"></i>
@@ -70,5 +87,6 @@ function Topbar() {
     </div>
   );
 }
+
 
 export default Topbar;

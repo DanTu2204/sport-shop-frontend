@@ -10,16 +10,17 @@ function Navbar() {
     // For now, we'll mock or leave it empty, or fetch if API is ready
     const fetchCategories = async () => {
       try {
-        const response = await axiosClient.get('/api/categories'); // Adjust endpoint if needed
+        const response = await axiosClient.get('/api/categories');
         if (response.data && response.data.categories) {
           setCategories(response.data.categories);
+        } else if (response.data && response.data.data && response.data.data.categories) {
+           setCategories(response.data.data.categories);
         }
       } catch (error) {
         console.error("Failed to fetch categories", error);
       }
     };
-    // Uncomment when API is ready
-    // fetchCategories(); 
+    fetchCategories(); 
   }, []);
 
   return (

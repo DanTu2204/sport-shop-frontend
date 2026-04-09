@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axiosClient from '../api/axiosClient';
+import axiosClient, { getImageUrl } from '../api/axiosClient';
 
 function Wishlist() {
   const [data, setData] = useState({ wishlist: [], loading: true });
@@ -74,7 +74,7 @@ function Wishlist() {
                   {data.wishlist.map((item, i) => (
                     <tr key={i}>
                        <td className="align-middle text-left pl-4">
-                          {item.image && <img src={item.image} style={{width: '50px', marginRight: '15px'}} alt={item.name} />}
+                          {item.image && <img src={getImageUrl(item.image)} style={{width: '50px', marginRight: '15px'}} alt={item.name} />}
                           <Link to={`/detail?id=${item.id}`} className="text-dark">{item.name}</Link>
                        </td>
                        <td className="align-middle">{formatCurrency(item.price)}</td>

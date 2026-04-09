@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axiosClient from '../api/axiosClient';
+import axiosClient, { getImageUrl } from '../api/axiosClient';
 
 function Home() {
   const [data, setData] = useState({
@@ -60,7 +60,7 @@ function Home() {
               <div className="carousel-inner">
                 {data.banners?.length > 0 ? data.banners.map((banner, index) => (
                   <div key={index} className={`carousel-item position-relative ${index === 0 ? "active" : ""}`} style={{ height: '430px' }}>
-                    <img className="position-absolute w-100 h-100" src={banner.image} onError={(e) => { e.target.src = '/img/carousel-1.jpg'; }} style={{ objectFit: 'cover' }} alt={banner.title} />
+                    <img className="position-absolute w-100 h-100" src={getImageUrl(banner.image)} onError={(e) => { e.target.src = '/img/carousel-1.jpg'; }} style={{ objectFit: 'cover' }} alt={banner.title} />
                     <div className="carousel-caption d-flex flex-column align-items-center justify-content-center">
                       <div className="p-3" style={{ maxWidth: '700px' }}>
                         <h1 className="display-4 text-white mb-3 animate__animated animate__fadeInDown">{banner.title}</h1>
@@ -128,7 +128,7 @@ function Home() {
                     <Link className="text-decoration-none" to={`/shop?category=${cat.name}`}>
                         <div className="cat-item d-flex align-items-center mb-4">
                             <div className="overflow-hidden" style={{ width: '100px', height: '100px' }}>
-                                <img className="img-fluid" src={cat.image || '/img/cat-1.jpg'} onError={(e) => { e.target.src = '/img/cat-1.jpg'; }} alt={cat.name} />
+                                <img className="img-fluid" src={getImageUrl(cat.image) || '/img/cat-1.jpg'} onError={(e) => { e.target.src = '/img/cat-1.jpg'; }} alt={cat.name} />
                             </div>
                             <div className="flex-fill pl-3">
                                 <h6>{cat.name}</h6>
@@ -149,7 +149,7 @@ function Home() {
                   <div key={index} className="col-lg-3 col-md-4 col-sm-6 pb-1">
                       <div className="product-item bg-light mb-4">
                           <div className="product-img position-relative overflow-hidden">
-                              <img className="img-fluid w-100" src={product.image} alt={product.name} />
+                              <img className="img-fluid w-100" src={getImageUrl(product.image)} alt={product.name} />
                               <div className="product-action">
                                   <button className="btn btn-outline-dark btn-square"><i className="fa fa-shopping-cart"></i></button>
                                   <Link className="btn btn-outline-dark btn-square" to={`/wishlist?add=${product.id}`}><i className="far fa-heart"></i></Link>

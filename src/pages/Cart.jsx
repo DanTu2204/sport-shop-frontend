@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axiosClient from '../api/axiosClient';
+import axiosClient, { getImageUrl } from '../api/axiosClient';
 
 function Cart() {
   const [data, setData] = useState({
@@ -80,7 +80,7 @@ function Cart() {
               {data.cart?.length > 0 ? data.cart.map((item, index) => (
                 <tr key={index}>
                   <td className="align-middle">
-                    {item.image && <img src={item.image} style={{ width: '50px', marginRight: '10px' }} alt={item.name} />} 
+                    {item.image && <img src={getImageUrl(item.image)} style={{ width: '50px', marginRight: '10px' }} alt={item.name} />} 
                     {item.name}
                   </td>
                   <td className="align-middle">{formatCurrency(item.price)}</td>

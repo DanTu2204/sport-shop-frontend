@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import axiosClient from '../api/axiosClient';
+import axiosClient, { getImageUrl } from '../api/axiosClient';
 
 function Detail() {
   const [searchParams] = useSearchParams();
@@ -73,7 +73,7 @@ function Detail() {
       <div className="row px-xl-5">
         <div className="col-lg-5 mb-30">
           <div className="bg-light">
-            <img className="w-100 h-100" src={product.image || '/img/product-1.jpg'} alt={product.name} style={{ objectFit: 'cover' }} />
+            <img className="w-100 h-100" src={getImageUrl(product.image) || '/img/product-1.jpg'} alt={product.name} style={{ objectFit: 'cover' }} />
           </div>
         </div>
 
@@ -166,7 +166,7 @@ function Detail() {
                 <div key={index} className="col-lg-3 col-md-4 col-sm-6 pb-1">
                   <div className="product-item bg-light mb-4">
                     <div className="product-img position-relative overflow-hidden">
-                      <img className="img-fluid w-100" src={relProd.image} alt={relProd.name} />
+                      <img className="img-fluid w-100" src={getImageUrl(relProd.image)} alt={relProd.name} />
                       <div className="product-action">
                          <Link className="btn btn-outline-dark btn-square" to={`/detail?id=${relProd.id}`}><i className="fa fa-search"></i></Link>
                       </div>

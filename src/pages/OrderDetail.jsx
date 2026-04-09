@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axiosClient from '../api/axiosClient';
+import axiosClient, { getImageUrl } from '../api/axiosClient';
 
 function OrderDetail() {
   const { id } = useParams();
@@ -104,7 +104,7 @@ function OrderDetail() {
                   <tbody>
                      {order.items.map((item, i) => (
                        <tr key={i}>
-                         <td style={{width: '100px'}}><img src={item.image} alt={item.name} className="img-fluid" style={{width: '80px'}} /></td>
+                         <td style={{width: '100px'}}><img src={getImageUrl(item.image)} alt={item.name} className="img-fluid" style={{width: '80px'}} /></td>
                          <td className="align-middle">
                            <Link to={`/detail?id=${item.productId}`} className="h6 text-decoration-none">{item.name}</Link><br/>
                            <small>{formatCurrency(item.price)} x {item.quantity}</small>

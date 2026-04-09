@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import axiosClient from '../api/axiosClient';
+import axiosClient, { getImageUrl } from '../api/axiosClient';
 
 function Shop() {
   const [data, setData] = useState({
@@ -78,7 +78,7 @@ function Shop() {
                 <div key={index} className="col-lg-4 col-md-6 col-sm-6 pb-1">
                   <div className="product-item bg-light mb-4">
                     <div className="product-img position-relative overflow-hidden">
-                        <img className="img-fluid w-100" src={product.image} alt={product.name} />
+                        <img className="img-fluid w-100" src={getImageUrl(product.image)} alt={product.name} />
                         <div className="product-action">
                             <button className="btn btn-outline-dark btn-square" title="Thêm vào giỏ"><i className="fa fa-shopping-cart"></i></button>
                             <Link className="btn btn-outline-dark btn-square" to={`/wishlist?add=${product.id}`} title="Yêu thích"><i className="far fa-heart"></i></Link>
