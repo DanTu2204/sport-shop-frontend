@@ -63,17 +63,27 @@ function Cart() {
 
     const updatedCart = data.cart.filter(item => item.id !== id);
     
-    // Tính toán lại các con số tổng tiền ngay tại local với giới hạn không âm
+    // Tính toán lại các con số tổng tiền theo quy tắc: Tạm tính <= Giảm giá thì Tổng = 0
     const newSubtotal = updatedCart.reduce((total, item) => total + (item.price * item.qty), 0);
-    const effectiveDiscount = Math.min(newSubtotal, data.discountAmount || 0);
-    const newGrandTotal = newSubtotal + data.shipping - effectiveDiscount;
+    const voucherValue = data.appliedVoucher?.value || data.discountAmount || 0;
+    
+    let effectiveDiscount = 0;
+    let newGrandTotal = 0;
+
+    if (newSubtotal > voucherValue) {
+        effectiveDiscount = voucherValue;
+        newGrandTotal = newSubtotal - effectiveDiscount + data.shipping;
+    } else {
+        effectiveDiscount = newSubtotal;
+        newGrandTotal = 0;
+    }
 
     setData(prev => ({
       ...prev,
       cart: updatedCart,
       subtotal: newSubtotal,
-      discountAmount: effectiveDiscount, // Cập nhật lại số tiền giảm thực tế
-      grandTotal: Math.max(0, newGrandTotal)
+      discountAmount: effectiveDiscount,
+      grandTotal: newGrandTotal
     }));
 
     try {
@@ -100,17 +110,27 @@ function Cart() {
       return item;
     });
 
-    // Tính toán lại tổng tiền tạm thời trong React để UI phản hồi nhanh
+    // Tính toán lại tổng tiền theo quy tắc: Tạm tính <= Giảm giá thì Tổng = 0
     const newSubtotal = updatedCart.reduce((total, item) => total + (item.price * item.qty), 0);
-    const effectiveDiscount = Math.min(newSubtotal, data.discountAmount || 0);
-    const newGrandTotal = newSubtotal + data.shipping - effectiveDiscount;
+    const voucherValue = data.appliedVoucher?.value || data.discountAmount || 0;
+
+    let effectiveDiscount = 0;
+    let newGrandTotal = 0;
+
+    if (newSubtotal > voucherValue) {
+        effectiveDiscount = voucherValue;
+        newGrandTotal = newSubtotal - effectiveDiscount + data.shipping;
+    } else {
+        effectiveDiscount = newSubtotal;
+        newGrandTotal = 0;
+    }
 
     setData(prev => ({
       ...prev,
       cart: updatedCart,
       subtotal: newSubtotal,
       discountAmount: effectiveDiscount,
-      grandTotal: Math.max(0, newGrandTotal)
+      grandTotal: newGrandTotal
     }));
   };
 
