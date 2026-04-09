@@ -180,7 +180,30 @@ function Checkout() {
               
               {data.discountAmount > 0 && (
                 <div className="d-flex justify-content-between mb-3 text-success">
-                   <h6>Giảm giá</h6>
+                   <div className="d-flex align-items-center">
+                      <h6 className="mb-0">Giảm giá ({data.voucherCode})</h6>
+                      <button 
+                        type="button" 
+                        className="btn btn-sm text-danger ml-2 p-0" 
+                        title="Hủy mã"
+                        onClick={async () => {
+                           try {
+                              await axiosClient.post('/api/cart/remove-voucher');
+                              setVoucherMsg({ text: 'Đã hủy mã giảm giá', type: 'text-muted' });
+                              setVoucherInput('');
+                              // Reset UI ngay lập tức
+                              setData(prev => ({
+                                 ...prev,
+                                 discountAmount: 0,
+                                 grandTotal: prev.subtotal + prev.shipping,
+                                 voucherCode: ''
+                              }));
+                           } catch (e) {}
+                        }}
+                      >
+                         <i className="fa fa-times-circle"></i>
+                      </button>
+                   </div>
                    <h6>-{formatCurrency(data.discountAmount)}</h6>
                 </div>
               )}
