@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
 
+import { useAppContext } from '../context/AppContext';
+
 function Navbar() {
   const [categories, setCategories] = useState([]);
+  const { user } = useAppContext();
 
   useEffect(() => {
     // In a real app, you'd fetch this from your backend
@@ -54,6 +57,7 @@ function Navbar() {
                         <div className="navbar-nav mr-auto py-0">
                             <Link to="/" className="nav-item nav-link active">Trang chủ</Link>
                             <Link to="/shop" className="nav-item nav-link">Cửa hàng</Link>
+                            {user && <Link to="/orders" className="nav-item nav-link">Đơn hàng</Link>}
                             <div className="nav-item dropdown">
                                 <a href="#" className="nav-link dropdown-toggle" data-toggle="dropdown">Trang <i className="fa fa-angle-down mt-1"></i></a>
                                 <div className="dropdown-menu bg-primary rounded-0 border-0 m-0">
