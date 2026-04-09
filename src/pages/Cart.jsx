@@ -39,8 +39,13 @@ function Cart() {
 
   const updateQuantity = (id, newQty) => {
     if (newQty < 1) return;
+    
     const updatedCart = data.cart.map(item => {
       if (item.id === id) {
+        // Check stock limit on frontend
+        if (newQty > item.stock) {
+           return item;
+        }
         return { ...item, qty: newQty };
       }
       return item;
@@ -93,11 +98,14 @@ function Cart() {
                       </div>
                       <input type="text" className="form-control form-control-sm bg-secondary border-0 text-center" value={item.qty} readOnly />
                       <div className="input-group-btn">
-                         <button className="btn btn-sm btn-primary btn-plus" onClick={() => updateQuantity(item.id, item.qty + 1)}>
+                         <button className="btn btn-sm btn-primary btn-plus" 
+                                 onClick={() => updateQuantity(item.id, item.qty + 1)}
+                                 disabled={item.qty >= item.stock}>
                            <i className="fa fa-plus"></i>
                          </button>
                       </div>
                     </div>
+                    {item.stock && <small className="text-muted d-block mt-1">Kho: {item.stock}</small>}
                   </td>
                   <td className="align-middle">{formatCurrency(item.price * item.qty)}</td>
                   <td className="align-middle">

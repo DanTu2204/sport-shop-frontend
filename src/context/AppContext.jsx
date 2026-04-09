@@ -53,20 +53,22 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const addToCart = async (product, qty = 1) => {
+  const addToCart = async (product, qty = 1, size = null) => {
     try {
-      await axiosClient.post('/api/cart/add', {
+      const response = await axiosClient.post('/api/cart/add', {
         id: product.id || product._id,
         name: product.name,
         price: product.price,
         image: product.image,
-        qty: qty
+        qty: qty,
+        size: size
       });
       syncState(); // Update counts
       alert('Đã thêm sản phẩm vào giỏ hàng!');
     } catch (error) {
       console.error("Add to cart error", error);
-      alert('Có lỗi xảy ra khi thêm vào giỏ hàng.');
+      const msg = error.response?.data?.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng.';
+      alert(msg);
     }
   };
 

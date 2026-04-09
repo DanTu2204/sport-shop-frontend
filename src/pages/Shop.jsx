@@ -82,7 +82,11 @@ function Shop() {
                     <div className="product-img position-relative overflow-hidden">
                         <img className="img-fluid w-100" src={getImageUrl(product.image)} alt={product.name} />
                         <div className="product-action">
-                            <button className="btn btn-outline-dark btn-square" title="Thêm vào giỏ" onClick={() => addToCart(product)}><i className="fa fa-shopping-cart"></i></button>
+                            {product.quantity > 0 ? (
+                                <button className="btn btn-outline-dark btn-square" title="Thêm vào giỏ" onClick={() => addToCart(product)}><i className="fa fa-shopping-cart"></i></button>
+                            ) : (
+                                <button className="btn btn-outline-dark btn-square disabled" title="Hết hàng" disabled><i className="fa fa-hourglass-half"></i></button>
+                            )}
                             <button className="btn btn-outline-dark btn-square" title="Yêu thích" onClick={() => addToWishlist(product.id)}><i className="far fa-heart"></i></button>
                             <Link className="btn btn-outline-dark btn-square" to={`/detail?id=${product.id}`} title="Xem chi tiết" style={{ zIndex: 100, position: 'relative' }}><i className="fa fa-search"></i></Link>
                         </div>

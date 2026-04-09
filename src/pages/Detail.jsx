@@ -16,6 +16,7 @@ function Detail() {
     error: null
   });
   const [qty, setQty] = useState(1);
+  const [currentStock, setCurrentStock] = useState(0);
   const [reviewForm, setReviewForm] = useState({ name: '', email: '', comment: '', stars: 5 });
 
   useEffect(() => {
@@ -24,8 +25,10 @@ function Detail() {
         const response = await axiosClient.get(`/api/detail?id=${productId}`);
         if (response.data && response.data.data) {
           setData({ ...response.data.data, loading: false });
+          setCurrentStock(response.data.data.product?.quantity || 0);
         } else if (response.data) {
           setData({ ...response.data, loading: false });
+          setCurrentStock(response.data.product?.quantity || 0);
         }
       } catch (error) {
         setData(prev => ({ ...prev, loading: false, error: error.message }));
@@ -87,6 +90,12 @@ function Detail() {
 
             <p className="mb-4">{product.description || 'Mô tả sản phẩm đang cập nhật.'}</p>
 
+            <div className="mb-3">
+                 <small className={`font-weight-bold ${currentStock > 0 ? 'text-success' : 'text-danger'}`}>
+                   {currentStock > 0 ? `Còn hàng: ${currentStock} sản phẩm` : 'Hết hàng'}
+                 </small>
+            </div>
+
             <form className="d-flex align-items-center mb-4 pt-2" onSubmit={handleAddToCart}>
               <div className="input-group quantity mr-3" style={{ width: '130px' }}>
                 <div className="input-group-btn">
@@ -96,13 +105,16 @@ function Detail() {
                 </div>
                 <input type="text" className="form-control bg-secondary border-0 text-center" value={qty} readOnly />
                 <div className="input-group-btn">
-                  <button type="button" className="btn btn-primary btn-plus" onClick={() => setQty(qty + 1)}>
+                  <button type="button" className="btn btn-primary btn-plus" 
+                          onClick={() => setQty(prev => (prev < currentStock) ? prev + 1 : prev)}
+                          disabled={qty >= currentStock}>
                     <i className="fa fa-plus"></i>
                   </button>
                 </div>
               </div>
-              <button type="submit" className="btn btn-primary px-3">
-                <i className="fa fa-shopping-cart mr-1"></i> Thêm vào giỏ hàng
+              <button type="submit" className={`btn px-3 ${currentStock > 0 ? 'btn-primary' : 'btn-secondary'}`} disabled={currentStock <= 0}>
+                <i className={`fa ${currentStock > 0 ? 'fa-shopping-cart' : 'fa-hourglass-half'} mr-1`}></i> 
+                {currentStock > 0 ? 'Thêm vào giỏ hàng' : 'Đã hết hàng, đợi nhập hàng'}
               </button>
             </form>
           </div>

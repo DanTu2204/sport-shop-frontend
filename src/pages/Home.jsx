@@ -142,8 +142,12 @@ function Home() {
                           <div className="product-img position-relative overflow-hidden">
                               <img className="img-fluid w-100" src={getImageUrl(product.image)} alt={product.name} />
                               <div className="product-action">
-                                  <button className="btn btn-outline-dark btn-square" onClick={() => addToCart(product)}><i className="fa fa-shopping-cart"></i></button>
-                                  <button className="btn btn-outline-dark btn-square" onClick={() => addToWishlist(product.id)}><i className="far fa-heart"></i></button>
+                                  {product.quantity > 0 ? (
+                                      <button className="btn btn-outline-dark btn-square" onClick={() => addToCart(product)} title="Thêm vào giỏ"><i className="fa fa-shopping-cart"></i></button>
+                                  ) : (
+                                      <button className="btn btn-outline-dark btn-square disabled" title="Hết hàng" disabled><i className="fa fa-hourglass-half"></i></button>
+                                  )}
+                                  <button className="btn btn-outline-dark btn-square" onClick={() => addToWishlist(product.id)} title="Yêu thích"><i className="far fa-heart"></i></button>
                                   <Link className="btn btn-outline-dark btn-square" to={`/detail?id=${product.id}`} style={{ zIndex: 100, position: 'relative' }}><i className="fa fa-search"></i></Link>
                               </div>
                           </div>
