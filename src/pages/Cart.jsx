@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axiosClient, { getImageUrl } from '../api/axiosClient';
 
@@ -12,6 +12,7 @@ function Cart() {
   });
 
   const [voucherCode, setVoucherCode] = useState('');
+  const syncId = useRef(0);
 
   const fetchCart = async () => {
     try {
@@ -56,11 +57,31 @@ function Cart() {
   };
 
   const handleRemove = async (id) => {
+    // 1. XÓA LẠC QUAN: Xóa khỏi giao diện ngay lập tức
+    const itemToRemove = data.cart.find(item => item.id === id);
+    if (!itemToRemove) return;
+
+    const updatedCart = data.cart.filter(item => item.id !== id);
+    
+    // Tính toán lại các con số tổng tiền ngay tại local
+    const newSubtotal = updatedCart.reduce((total, item) => total + (item.price * item.qty), 0);
+    const newGrandTotal = newSubtotal + data.shipping - (data.discountAmount || 0);
+
+    setData(prev => ({
+      ...prev,
+      cart: updatedCart,
+      subtotal: newSubtotal,
+      grandTotal: newGrandTotal
+    }));
+
     try {
+      // 2. Gửi lệnh xóa ngầm lên server
       await axiosClient.post('/api/cart/remove', { id });
-      fetchCart(); // refresh Data
+      // Không gọi fetchCart() vì UI đã được cập nhật đúng rồi
     } catch (error) {
-      alert("Lỗi khi xóa sản phẩm");
+      console.error("Lỗi khi xóa sản phẩm:", error);
+      // Nếu lỗi, mới cần nạp lại dữ liệu thật từ server để đảm bảo chính xác
+      fetchCart();
     }
   };
 
@@ -89,17 +110,19 @@ function Cart() {
     }));
   };
 
-  // ĐỒNG BỘ NGẦM (Debounced Sync): Gửi lên máy chủ sau khi người dùng ngừng nhấn nút
+  // ĐỒNG BỘ NGẦM (Debounced Sync) với xử lý chống nhảy số (Jitter Control)
   useEffect(() => {
-    // Không chạy khi giỏ hàng đang tải lần đầu hoặc trống
     if (data.loading || data.cart.length === 0) return;
+
+    // Tăng mã định danh yêu cầu mỗi khi giỏ hàng thay đổi
+    const currentId = ++syncId.current;
 
     const syncTimer = setTimeout(async () => {
       try {
         const response = await axiosClient.post('/api/cart/update', { cart: data.cart });
-        if (response.data.success) {
-          // Cập nhật lại các con số chính xác từ server (phòng trường hợp server tính khác React)
-          // nhưng không đặt lại loading: true để tránh nháy màn hình
+        
+        // CHỈ cập nhật vào State nếu đây là phản hồi của yêu cầu MỚI NHẤT
+        if (response.data.success && syncId.current === currentId) {
           setData(prev => ({
             ...prev,
             ...response.data.data
@@ -108,7 +131,7 @@ function Cart() {
       } catch (error) {
         console.error('Lỗi đồng bộ giỏ hàng:', error);
       }
-    }, 500); // Đợi 500ms sau thao tác cuối cùng
+    }, 500);
 
     return () => clearTimeout(syncTimer);
   }, [data.cart]);
