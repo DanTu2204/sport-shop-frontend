@@ -11,7 +11,6 @@ function Cart() {
     loading: true,
   });
 
-  const [voucherCode, setVoucherCode] = useState('');
   const syncId = useRef(0);
 
   const fetchCart = async () => {
@@ -30,31 +29,6 @@ function Cart() {
     fetchCart();
   }, []);
 
-  const handleApplyVoucher = async (e) => {
-    e.preventDefault();
-    if (!voucherCode) return;
-    try {
-      const response = await axiosClient.post('/api/cart/apply-voucher', { code: voucherCode });
-      if (response.data.success) {
-        alert(response.data.message);
-        setVoucherCode('');
-        fetchCart();
-      } else {
-        alert(response.data.message);
-      }
-    } catch (error) {
-      alert('Lỗi áp dụng mã giảm giá.');
-    }
-  };
-
-  const handleRemoveVoucher = async () => {
-    try {
-      await axiosClient.post('/api/cart/remove-voucher');
-      fetchCart();
-    } catch (error) {
-      alert('Lỗi gỡ mã giảm giá.');
-    }
-  };
 
   const handleRemove = async (id) => {
     // 1. XÓA LẠC QUAN: Xóa khỏi giao diện ngay lập tức
@@ -63,26 +37,14 @@ function Cart() {
 
     const updatedCart = data.cart.filter(item => item.id !== id);
     
-    // Tính toán lại các con số tổng tiền theo quy tắc: Tạm tính <= Giảm giá thì Tổng = 0
+    // Tính toán lại các con số tổng tiền đơn giản: Tạm tính + Phí ship
     const newSubtotal = updatedCart.reduce((total, item) => total + (item.price * item.qty), 0);
-    const voucherValue = data.appliedVoucher?.value || data.discountAmount || 0;
-    
-    let effectiveDiscount = 0;
-    let newGrandTotal = 0;
-
-    if (newSubtotal > voucherValue) {
-        effectiveDiscount = voucherValue;
-        newGrandTotal = newSubtotal - effectiveDiscount + data.shipping;
-    } else {
-        effectiveDiscount = newSubtotal;
-        newGrandTotal = 0;
-    }
+    const newGrandTotal = newSubtotal + data.shipping;
 
     setData(prev => ({
       ...prev,
       cart: updatedCart,
       subtotal: newSubtotal,
-      discountAmount: effectiveDiscount,
       grandTotal: newGrandTotal
     }));
 
@@ -110,26 +72,14 @@ function Cart() {
       return item;
     });
 
-    // Tính toán lại tổng tiền theo quy tắc: Tạm tính <= Giảm giá thì Tổng = 0
+    // Tính toán lại tổng tiền đơn giản: Tạm tính + Phí ship
     const newSubtotal = updatedCart.reduce((total, item) => total + (item.price * item.qty), 0);
-    const voucherValue = data.appliedVoucher?.value || data.discountAmount || 0;
-
-    let effectiveDiscount = 0;
-    let newGrandTotal = 0;
-
-    if (newSubtotal > voucherValue) {
-        effectiveDiscount = voucherValue;
-        newGrandTotal = newSubtotal - effectiveDiscount + data.shipping;
-    } else {
-        effectiveDiscount = newSubtotal;
-        newGrandTotal = 0;
-    }
+    const newGrandTotal = newSubtotal + data.shipping;
 
     setData(prev => ({
       ...prev,
       cart: updatedCart,
       subtotal: newSubtotal,
-      discountAmount: effectiveDiscount,
       grandTotal: newGrandTotal
     }));
   };
@@ -245,12 +195,6 @@ function Cart() {
                 <h6 className="font-weight-medium">Phí vận chuyển</h6>
                 <h6 className="font-weight-medium">{formatCurrency(data.shipping)}</h6>
               </div>
-              {data.discountAmount > 0 && (
-                <div className="d-flex justify-content-between mb-3 text-success">
-                  <h6 className="font-weight-bold">Giảm giá ({data.appliedVoucher?.code}) <span className="text-danger" style={{cursor:'pointer'}} onClick={handleRemoveVoucher}>&times;</span></h6>
-                  <h6 className="font-weight-bold">-{formatCurrency(data.discountAmount)}</h6>
-                </div>
-              )}
             </div>
             <div className="pt-2">
               <div className="d-flex justify-content-between mt-2">

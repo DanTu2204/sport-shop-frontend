@@ -67,7 +67,29 @@ function Checkout() {
       const res = await axiosClient.post('/api/cart/apply-voucher', { code: voucherInput });
       if (res.data.success) {
         setVoucherMsg({ text: res.data.message, type: 'text-success' });
-        fetchCheckoutData(); // Refresh totals
+        
+        // CẬP NHẬT TỨC THÌ (Optimistic UI) dựa trên quy tắc 0đ
+        const v = res.data.data;
+        let potentialDiscount = (v.type === 'percent') ? (data.subtotal * v.value) / 100 : v.value;
+
+        let finalDiscount = 0;
+        let finalGrandTotal = 0;
+
+        // Áp dụng quy tắc: Tạm tính <= Giảm giá thì Tổng = 0
+        if (data.subtotal <= potentialDiscount) {
+            finalDiscount = data.subtotal;
+            finalGrandTotal = 0;
+        } else {
+            finalDiscount = potentialDiscount;
+            finalGrandTotal = data.subtotal + data.shipping - finalDiscount;
+        }
+
+        setData(prev => ({
+            ...prev,
+            discountAmount: finalDiscount,
+            grandTotal: finalGrandTotal,
+            voucherCode: v.code
+        }));
       } else {
         setVoucherMsg({ text: res.data.message, type: 'text-danger' });
       }
