@@ -165,7 +165,7 @@ function Profile() {
                   <i className="fas fa-check mr-1"></i> Lưu ảnh
                 </button>
                 <button 
-                  className="btn btn-sm btn-outline-secondary px-3 shadow-sm" 
+                  className="btn btn-sm btn-danger px-3 shadow-sm" 
                   onClick={() => { setAvatarFile(null); setAvatarPreview(null); }}
                   title="Hủy bỏ thay đổi"
                 >
