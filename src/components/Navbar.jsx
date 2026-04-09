@@ -63,19 +63,6 @@ function Navbar() {
                             </div>
                             <Link to="/contact" className="nav-item nav-link">Liên hệ</Link>
                         </div>
-                        <div className="navbar-nav ml-auto py-0 d-none d-lg-block">
-                            <Link to="/profile" className="btn px-0" title="Tài khoản của tôi">
-                                <i className="fas fa-user text-primary"></i>
-                            </Link>
-                            <Link to="/wishlist" className="btn px-0 ml-3">
-                                <i className="fas fa-heart text-primary"></i>
-                                <span className="badge text-secondary border border-secondary rounded-circle" style={{ paddingBottom: '2px' }}>0</span>
-                            </Link>
-                            <Link to="/cart" className="btn px-0 ml-3">
-                                <i className="fas fa-shopping-cart text-primary"></i>
-                                <span className="badge text-secondary border border-secondary rounded-circle cart-count" style={{ paddingBottom: '2px' }}>0</span>
-                            </Link>
-                        </div>
                     </div>
                 </nav>
             </div>
