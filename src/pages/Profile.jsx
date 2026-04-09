@@ -1,0 +1,215 @@
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axiosClient from '../api/axiosClient';
+
+function Profile() {
+  const navigate = useNavigate();
+  const [data, setData] = useState({ user: null, orders: [], loading: true });
+  const [activeTab, setActiveTab] = useState('profile');
+  const [passForm, setPassForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [profileForm, setProfileForm] = useState({ name: '', phone: '', address: '', birthday: '' });
+
+  const fetchProfile = async () => {
+    try {
+      const response = await axiosClient.get('/api/profile');
+      if (response.data && response.data.data) {
+        const u = response.data.data.user;
+        setData({ user: u, orders: response.data.data.orders || [], loading: false });
+        if(u) {
+           setProfileForm({
+             name: u.name || '',
+             phone: u.phone || '',
+             address: u.address || '',
+             birthday: u.birthday ? new Date(u.birthday).toISOString().split('T')[0] : ''
+           });
+        }
+      } else if (response.data && response.data.user) {
+        const u = response.data.user;
+        setData({ user: u, orders: response.data.orders || [], loading: false });
+        // Handle direct json
+        setProfileForm({
+             name: u.name || '', phone: u.phone || '', address: u.address || '',
+             birthday: u.birthday ? new Date(u.birthday).toISOString().split('T')[0] : ''
+        });
+      }
+    } catch (error) {
+       navigate('/login');
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, [navigate]);
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData();
+      Object.keys(profileForm).forEach(k => formData.append(k, profileForm[k]));
+      // Note: updating profile image in react needs actual file handling.
+      // Skipping file for brevity or append document.getElementById('file').files[0] if it exists
+      
+      await axiosClient.post('/api/profile/update', formData, { headers: { 'Content-Type': 'multipart/form-data' }});
+      alert('Cập nhật thành công!');
+      fetchProfile();
+    } catch (err) {
+      alert('Lỗi cập nhật');
+    }
+  };
+
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+    if (passForm.newPassword !== passForm.confirmPassword) {
+      return alert("Mật khẩu xác nhận không khớp");
+    }
+    try {
+      // Backend expects these fields
+      await axiosClient.post('/api/profile/password', passForm);
+      alert('Cập nhật mật khẩu thành công!');
+      setPassForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      alert('Lỗi đổi mật khẩu');
+    }
+  };
+
+  const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val || 0);
+
+  if (data.loading) return <div className="container py-5 text-center">Đang tải biểu mẫu...</div>;
+  if (!data.user) return null;
+
+  const user = data.user;
+
+  return (
+    <div className="container-fluid pb-5 pt-4">
+      <div className="row px-xl-5">
+        <div className="col-lg-3 col-md-4 mb-4">
+          <div className="bg-light p-4 text-center rounded shadow-sm">
+            <div className="position-relative d-inline-block mb-3">
+               <img src={user.image || '/img/user.jpg'} className="rounded-circle border" style={{width: '150px', height: '150px', objectFit: 'cover'}} alt="User Avatar" />
+            </div>
+            <h5 className="font-weight-semi-bold">{user.name}</h5>
+            <p className="text-muted">{user.email}</p>
+
+            <div className="nav flex-column nav-pills text-left mt-4" style={{cursor: 'pointer'}}>
+               <div className={`nav-link ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}><i className="fas fa-user mr-2"></i> Hồ sơ của tôi</div>
+               <div className={`nav-link ${activeTab === 'password' ? 'active' : ''}`} onClick={() => setActiveTab('password')}><i className="fas fa-key mr-2"></i> Đổi mật khẩu</div>
+               <div className={`nav-link ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}><i className="fas fa-shopping-bag mr-2"></i> Đơn hàng của tôi</div>
+               <button className="nav-link text-danger text-left border-0 bg-transparent mt-3" onClick={() => { /* Logout Logic */ axiosClient.get('/api/auth/logout').then(() => { window.dispatchEvent(new Event('auth-change')); navigate('/login'); })}}><i className="fas fa-sign-out-alt mr-2"></i> Đăng xuất</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-lg-9 col-md-8">
+          <div className="tab-content bg-light p-4 rounded shadow-sm">
+            
+            {activeTab === 'profile' && (
+              <div>
+                 <h4 className="mb-4">Thông tin cá nhân</h4>
+                 <form onSubmit={handleProfileUpdate}>
+                    <div className="row">
+                       <div className="col-md-6 form-group">
+                           <label>Họ và Tên</label>
+                           <input type="text" className="form-control" required value={profileForm.name} onChange={(e) => setProfileForm({...profileForm, name: e.target.value})} />
+                       </div>
+                       <div className="col-md-6 form-group">
+                           <label>Email (Không thể thay đổi)</label>
+                           <input type="email" className="form-control" readOnly value={user.email} />
+                       </div>
+                       <div className="col-md-6 form-group">
+                           <label>Số điện thoại</label>
+                           <input type="text" className="form-control" value={profileForm.phone} onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})} />
+                       </div>
+                       <div className="col-md-6 form-group">
+                           <label>Ngày sinh</label>
+                           <input type="date" className="form-control" value={profileForm.birthday} onChange={(e) => setProfileForm({...profileForm, birthday: e.target.value})} />
+                       </div>
+                       <div className="col-md-12 form-group">
+                           <label>Địa chỉ</label>
+                           <input type="text" className="form-control" value={profileForm.address} onChange={(e) => setProfileForm({...profileForm, address: e.target.value})} />
+                       </div>
+                       <div className="col-md-12 form-group">
+                           <button type="submit" className="btn btn-primary mt-3">Cập nhật thông tin</button>
+                       </div>
+                    </div>
+                 </form>
+              </div>
+            )}
+
+            {activeTab === 'password' && (
+              <div>
+                 <h4 className="mb-4">Đổi mật khẩu</h4>
+                 <form onSubmit={handlePasswordUpdate}>
+                    <div className="row">
+                       <div className="col-md-12 form-group">
+                          <label>Mật khẩu hiện tại</label>
+                          <input type="password" className="form-control" required value={passForm.currentPassword} onChange={(e) => setPassForm({...passForm, currentPassword: e.target.value})} />
+                       </div>
+                       <div className="col-md-6 form-group">
+                          <label>Mật khẩu mới</label>
+                          <input type="password" className="form-control" required minLength="6" value={passForm.newPassword} onChange={(e) => setPassForm({...passForm, newPassword: e.target.value})} />
+                       </div>
+                       <div className="col-md-6 form-group">
+                          <label>Xác nhận mật khẩu mới</label>
+                          <input type="password" className="form-control" required minLength="6" value={passForm.confirmPassword} onChange={(e) => setPassForm({...passForm, confirmPassword: e.target.value})} />
+                       </div>
+                       <div className="col-md-12 form-group">
+                          <button type="submit" className="btn btn-primary mt-3">Lưu mật khẩu mới</button>
+                       </div>
+                    </div>
+                 </form>
+              </div>
+            )}
+
+            {activeTab === 'orders' && (
+              <div>
+                 <h4 className="mb-4">Lịch sử Đơn hàng</h4>
+                 <div className="table-responsive">
+                    {data.orders.length > 0 ? (
+                       <table className="table table-bordered table-hover text-center mb-0">
+                          <thead className="thead-dark">
+                             <tr>
+                                <th>Mã đơn</th>
+                                <th>Ngày đặt</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Chi tiết</th>
+                             </tr>
+                          </thead>
+                          <tbody className="align-middle">
+                             {data.orders.map((o) => (
+                                <tr key={o._id}>
+                                   <td className="align-middle">{o._id}</td>
+                                   <td className="align-middle">{new Date(o.createdAt).toLocaleDateString()}</td>
+                                   <td className="align-middle text-success font-weight-bold">{formatCurrency(o.totalPrice)}</td>
+                                   <td className="align-middle">
+                                      {o.status === 'pending' && <span className="badge badge-warning p-2">Đang xử lý</span>}
+                                      {o.status === 'confirmed' && <span className="badge badge-info p-2">Đã xác nhận</span>}
+                                      {o.status === 'shipping' && <span className="badge badge-primary p-2">Đang giao</span>}
+                                      {o.status === 'completed' && <span className="badge badge-success p-2">Hoàn thành</span>}
+                                      {o.status === 'cancelled' && <span className="badge badge-danger p-2">Đã hủy</span>}
+                                   </td>
+                                   <td className="align-middle">
+                                      <Link to={`/orders/${o._id}`} className="btn btn-sm btn-outline-dark">Chi tiết</Link>
+                                   </td>
+                                </tr>
+                             ))}
+                          </tbody>
+                       </table>
+                    ) : (
+                       <div className="text-center py-5 border bg-white rounded">
+                           <h5 className="text-muted">Bạn chưa có đơn hàng nào.</h5>
+                           <Link to="/shop" className="btn btn-primary mt-3">Mua sắm ngay</Link>
+                       </div>
+                    )}
+                 </div>
+              </div>
+            )}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Profile;
