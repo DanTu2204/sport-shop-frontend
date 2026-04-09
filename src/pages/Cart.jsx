@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axiosClient, { getImageUrl } from '../api/axiosClient';
+import { useAppContext } from '../context/AppContext';
 
 function Cart() {
+  const { syncState } = useAppContext();
   const [data, setData] = useState({
     cart: [],
     subtotal: 0,
@@ -31,6 +33,9 @@ function Cart() {
 
 
   const handleRemove = async (id) => {
+    // 0. Tăng syncId ngay lập tức để chặn các yêu cầu sync cũ (Chống Ghost Item)
+    syncId.current++;
+
     // 1. XÓA LẠC QUAN: Xóa khỏi giao diện ngay lập tức
     const itemToRemove = data.cart.find(item => item.id === id);
     if (!itemToRemove) return;
@@ -51,10 +56,11 @@ function Cart() {
     try {
       // 2. Gửi lệnh xóa ngầm lên server
       await axiosClient.post('/api/cart/remove', { id });
-      // Không gọi fetchCart() vì UI đã được cập nhật đúng rồi
+      
+      // 3. ĐỒNG BỘ HEADER: Cập nhật lại cartCount trên thanh Header
+      syncState();
     } catch (error) {
       console.error("Lỗi khi xóa sản phẩm:", error);
-      // Nếu lỗi, mới cần nạp lại dữ liệu thật từ server để đảm bảo chính xác
       fetchCart();
     }
   };

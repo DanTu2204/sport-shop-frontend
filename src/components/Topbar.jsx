@@ -25,7 +25,6 @@ function Topbar() {
         <div className="col-lg-6 d-none d-lg-block">
           <div className="d-inline-flex align-items-center h-100">
             <Link className="text-body mr-3" to="/about">Về chúng tôi</Link>
-            <Link className="text-body mr-3" to="/contact">Liên hệ</Link>
             <Link className="text-body mr-3" to="/help">Trợ giúp</Link>
             <Link className="text-body mr-3" to="/faq">Câu hỏi thường gặp</Link>
           </div>
