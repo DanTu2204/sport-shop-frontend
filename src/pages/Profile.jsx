@@ -131,6 +131,7 @@ function Profile() {
                  style={{width: '150px', height: '150px', objectFit: 'cover'}} 
                  alt="User Avatar" 
                  id="sidebar-avatar-preview"
+                 onError={(e) => { e.target.onerror = null; e.target.src = 'https://www.w3schools.com/howto/img_avatar.png'; }}
                />
                <label 
                  htmlFor="avatar-upload" 
